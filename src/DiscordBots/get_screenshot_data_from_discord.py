@@ -11,6 +11,7 @@ async def download_image_data(session, url, timeout=30):
         async with session.get(url) as response:
             return await response.read()
 
+
 async def resize_image(image_data, target_height):
     with io.BytesIO(image_data) as input_buffer, io.BytesIO() as output_buffer:
         image = Image.open(input_buffer)
