@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>View Item</title>
+</head>
+<body>
+    <h1>View Item</h1>
+    <ul>
+    {% for key, value in item_data.items() %}
+        <li>
+            <strong>{{ key }}:</strong>
+            {% if value is string and value.startswith('data:image') %}
+                <br>
+                <img src="{{ value }}" alt="{{ key }}" style="max-width: 100%;">
+            {% else %}
+                {{ value }}
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+    <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('view_previous_item', collection_name=collection_name, item_index=item_index) }}">Previous</a>
+    <a href="{{ url_for('view_next_item', collection_name=collection_name, item_index=item_index) }}">Next</a>
+</body>
+</html>

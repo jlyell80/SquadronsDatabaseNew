@@ -9,7 +9,7 @@ db_name = "SEFDatabase"
 mongo_connection_string = f"mongodb+srv://Admin:{os.getenv('MONGO_PW')}@cluster0.jgdzg.mongodb.net/{db_name}?retryWrites=true&w=majority"
 
 # Connect to the MongoDB database
-connect_to_mongo(mongo_connection_string, db_name)
+connect_to_mongo(mongo_connection_string)
 
 # Retrieve a screenshot document from the database
 screenshot_doc = Screenshot.objects.first()

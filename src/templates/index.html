@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/styles.css">
+  <title>Squadrons Esports Federation Database</title>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Options</h2>
+    <ul>
+      <li>
+        <a href="#" id="addNewChannelLink">Add new channel</a>
+      </li>
+      <li>
+        <a href="#" id="downloadChannelLink">Download Discord channel</a>
+      </li>
+    </ul>
+  </div>
+  <div class="main">
+    <h1>Squadrons Esports Federation Database</h1>
+    <ul>
+     {% for collection in collections %}
+     <li><a href="{{ url_for('view_item', collection_name=collection.name, item_index=0) }}">{{ collection.name }} ({{ collection.count }})</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Add Channel Modal -->
+  <div id="addChannelModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Add New Channel</h2>
+      <form id="addChannelForm">
+        <label for="channel_id">Channel ID:</label>
+        <input type="text" id="channel_id" name="channel_id" required>
+        <br>
+        <button type="submit">Add Channel</button>
+      </form>
+    </div>
+  </div>
+
+   <!-- Download Channel Modal -->
+  <div id="downloadChannelModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Download Discord Channel</h2>
+      <form id="downloadChannelForm">
+        <label for="channelSelect">Select a channel:</label>
+        <select id="channelSelect">
+          <option value="">Select a channel</option>
+        </select>
+        <br>
+        <button type="submit">Download</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const downloadChannelLink = document.getElementById("downloadChannelLink");
+    const downloadChannelModal = document.getElementById("downloadChannelModal");
+    const downloadChannelCloseBtn = document.getElementsByClassName("close")[1];
+    const channelSelect = document.getElementById("channelSelect");
+
+    // Fetch the list of channels from the Flask backend and create the dropdown options
+    async function updateChannelsDropdown() {
+      const response = await fetch("/get_channels");
+      if (response.ok) {
+        const channels = await response.json();
+
+        channels.forEach(channel => {
+          const option = document.createElement("option");
+          option.value = channel.channel_id;
+          const channelName = `${channel.server_name} - ${channel.thread_name ? channel.thread_name + " - " : ""}${channel.channel_name}`;
+          option.text = channelName;
+          channelSelect.add(option);
+        });
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", updateChannelsDropdown);
+
+    downloadChannelLink.addEventListener("click", function (event) {
+      event.preventDefault();
+      downloadChannelModal.style.display = "block";
+    });
+
+    downloadChannelCloseBtn.onclick = function () {
+      downloadChannelModal.style.display = "none";
+    };
+
+    document.getElementById("downloadChannelForm").addEventListener("submit", async function (event) {
+      event.preventDefault();
+      const channel_id = document.getElementById("channelSelect").value;
+
+      const response = await fetch("/download_channel", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ channel_id })
+      });
+
+      if (response.ok) {
+        alert("Download successful.");
+        downloadChannelModal.style.display = "none";
+      } else {
+        alert("Download failed.");
+      }
+    });
+  </script>
+
+</body>
+</html>

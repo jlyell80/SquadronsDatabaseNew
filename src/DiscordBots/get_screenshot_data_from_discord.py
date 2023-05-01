@@ -4,6 +4,7 @@ import io
 from PIL import Image
 from src.Database.models import Screenshot
 import asyncio
+import datetime
 
 
 async def download_image_data(session, url, timeout=30):
@@ -37,7 +38,6 @@ async def process_message(session, message, target_height):
                 image_data = await asyncio.wait_for(download_image_data(session, attachment.url), timeout=30)  # Adjust the timeout value as needed
                 resized_image_data = await resize_image(image_data, target_height)
 
-                # Create a new document for each attachment and save it to the database
                 screenshot_document = Screenshot(
                     message_id=str(message.id),
                     message_data={
@@ -50,7 +50,9 @@ async def process_message(session, message, target_height):
                     image_id=attachment.id,
                     image_url=attachment.url,
                     image_data=resized_image_data,
+                    date_added=datetime.datetime.utcnow(),
                     game_id=None  # You can update this field when you have the game_id
+                # Create a new document for each attachment and save it to the database
                 )
                 screenshot_document.save()
                 print(f"Added new message with ID {message.id} and attachment ID {attachment.id}")
